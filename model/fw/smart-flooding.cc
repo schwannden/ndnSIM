@@ -29,6 +29,7 @@
 #include "ns3/simulator.h"
 #include "ns3/boolean.h"
 
+#include <iostream>
 #include <boost/ref.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -71,25 +72,28 @@ SmartFlooding::DoPropagateInterest (Ptr<Face> inFace,
 {
   NS_LOG_FUNCTION (this);
 
-  // Try to work out with just green faces
-  bool greenOk = super::DoPropagateInterest (inFace, interest, pitEntry);
-  if (greenOk)
+  // Try to work out with just the best green face
+  if (super::DoPropagateInterest (inFace, interest, pitEntry))
     return true;
 
+  // Otherwise propagate interest in all other yellow/green faces
   int propagatedCount = 0;
 
   BOOST_FOREACH (const fib::FaceMetric &metricFace, pitEntry->GetFibEntry ()->m_faces.get<fib::i_metric> ())
     {
       NS_LOG_DEBUG ("Trying " << boost::cref(metricFace));
-      if (metricFace.GetStatus () == fib::FaceMetric::NDN_FIB_RED) // all non-read faces are in the front of the list
-        break;
-
-      if (!TrySendOutInterest (inFace, metricFace.GetFace (), interest, pitEntry))
+      if (metricFace.GetStatus () != fib::FaceMetric::NDN_FIB_RED)
         {
-          continue;
+          if (TrySendOutInterest (inFace, metricFace.GetFace (), interest, pitEntry))
+            {
+              std::cout << "from Face " << inFace->GetId () << "to Face " << metricFace.GetFace ()->GetId () << "succeeded!" << std::endl;
+              propagatedCount++;
+            }
+          else
+            {
+              std::cout << "from Face " << inFace->GetId () << "to Face " << metricFace.GetFace ()->GetId () << "failed!" << std::endl;
+            }
         }
-
-      propagatedCount++;
     }
 
   NS_LOG_INFO ("Propagated to " << propagatedCount << " faces");
