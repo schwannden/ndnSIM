@@ -77,6 +77,9 @@ void
 Nacks::OnInterest (Ptr<Face> inFace,
                    Ptr<Interest> interest)
 {
+  std::cout << "Node: " << inFace->GetNode()->GetId()
+    << " Get interest: " << interest->GetName() 
+    << " from Face: " << inFace->GetId() << std::endl;
   if (interest->GetNack () > 0)
     OnNack (inFace, interest);
   else

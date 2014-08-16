@@ -73,6 +73,11 @@ InstallNdnStack (bool installFIBs/* = true*/)
   ndnHelper.SetForwardingStrategy ("ns3::ndn::fw::SmartFlooding");
   ndnHelper.SetDefaultRoutes (false);
   ndnHelper.InstallAll ();
+
+  ndn::GlobalRoutingHelper routingHelper;
+  routingHelper.InstallAll ();
+  routingHelper.AddOriginsForAll ();
+  ndn::GlobalRoutingHelper::CalculateAllPossibleRoutes ();
 }
 
 void
@@ -123,7 +128,7 @@ main (int argc, char *argv[])
   InstallNdnStack ( true );
   AddNdnApplications ();
 
-  Simulator::Stop (Seconds (50.0));
+  Simulator::Stop (Seconds (8.0));
   Simulator::Run ();
   Simulator::Destroy ();
 

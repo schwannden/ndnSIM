@@ -145,6 +145,7 @@ void
 ForwardingStrategy::OnInterest (Ptr<Face> inFace,
                                 Ptr<Interest> interest)
 {
+  std::cout << "Inside ForwardingStrategy::OnInterest: ";
   NS_LOG_FUNCTION (inFace << interest->GetName ());
   m_inInterests (interest, inFace);
 
@@ -160,6 +161,7 @@ ForwardingStrategy::OnInterest (Ptr<Face> inFace,
         }
       else
         {
+          std::cout << "FailedToCreatePitEntry" << std::endl; 
           FailedToCreatePitEntry (inFace, interest);
           return;
         }
@@ -174,6 +176,7 @@ ForwardingStrategy::OnInterest (Ptr<Face> inFace,
 
   if (isDuplicated)
     {
+      std::cout << "DidReceiveDuplicateInterest" << std::endl; 
       DidReceiveDuplicateInterest (inFace, interest, pitEntry);
       return;
     }
@@ -194,6 +197,7 @@ ForwardingStrategy::OnInterest (Ptr<Face> inFace,
       WillSatisfyPendingInterest (0, pitEntry);
 
       // Actually satisfy pending interest
+      std::cout << "SatisfyPendingInterest from cs" << std::endl; 
       SatisfyPendingInterest (0, contentObject, pitEntry);
       return;
     }
@@ -208,15 +212,18 @@ ForwardingStrategy::OnInterest (Ptr<Face> inFace,
       NS_LOG_DEBUG ("Suppress interests");
       m_dropInterests (interest, inFace);
 
+      std::cout << "DidSuppressSimilarInterest " << std::endl; 
       DidSuppressSimilarInterest (inFace, interest, pitEntry);
       return;
     }
 
   if (similarInterest)
     {
+      std::cout << "DidForwardSimilarInterest" << std::endl; 
       DidForwardSimilarInterest (inFace, interest, pitEntry);
     }
 
+  std::cout << "PropagateInterest" << std::endl; 
   PropagateInterest (inFace, interest, pitEntry);
 }
 
