@@ -86,10 +86,12 @@ SmartFlooding::DoPropagateInterest (Ptr<Face> inFace,
         {
           if (TrySendOutInterest (inFace, metricFace.GetFace (), interest, pitEntry))
             {
+              std::cout << "from Face " << inFace->GetId () << "to Face " << metricFace.GetFace ()->GetId () << "succeeded!" << std::endl;
               propagatedCount++;
             }
           else
             {
+              std::cout << "from Face " << inFace->GetId () << "to Face " << metricFace.GetFace ()->GetId () << "failed!" << std::endl;
             }
         }
     }

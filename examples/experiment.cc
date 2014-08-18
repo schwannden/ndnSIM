@@ -44,6 +44,17 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
+#ifndef NUMOFCLIENT
+#define NUMOFCLIENT 4
+#endif
+
+#ifndef NUMOFSERVER
+#define NUMOFSERVER 2
+#endif
+
+#ifndef CONTENTNAME
+#define CONTENTNAME "/content"
+#endif
 
 using namespace std;
 using namespace ns3;
@@ -74,25 +85,29 @@ InstallNdnStack (bool installFIBs/* = true*/)
   ndnHelper.SetDefaultRoutes (false);
   ndnHelper.InstallAll ();
 
-  ndn::GlobalRoutingHelper routingHelper;
-  routingHelper.InstallAll ();
-  routingHelper.AddOriginsForAll ();
-  ndn::GlobalRoutingHelper::CalculateAllPossibleRoutes ();
+  ndn::GlobalRoutingHelper ndnGlobalRoutingHelper;
+  ndnGlobalRoutingHelper.InstallAll ();
+
+  Ptr<Node> server1 = Names::Find<Node> ( "server1" );
+  ndnGlobalRoutingHelper.AddOrigins ( CONTENTNAME, server1 );
+
+  Ptr<Node> server2 = Names::Find<Node> ( "server2" );
+  ndnGlobalRoutingHelper.AddOrigins ( CONTENTNAME, server2 );
+
+  ndn::GlobalRoutingHelper::CalculateRoutes ();
 }
 
 void
 AddNdnApplications ()
 {
   ApplicationContainer app;
-  string contentName ("/content");
 
   ndn::AppHelper consumerHelper ("ns3::ndn::ConsumerWindow");
-  consumerHelper.SetPrefix (contentName);
+  consumerHelper.SetPrefix (CONTENTNAME);
   consumerHelper.SetAttribute ("Size", StringValue ("2.0"));
 
-  int n = 4; //number of clients
   string nodeName( "clientn" );
-  for (int i = 0 ; i < n ; i++)
+  for (int i = 0 ; i < NUMOFCLIENT ; i++)
     {
       nodeName[ nodeName.size() - 1 ] = '1'+i;
       Ptr<Node> client = Names::Find<Node> (nodeName);
@@ -100,14 +115,13 @@ AddNdnApplications ()
       app.Start (Seconds (2*i));
     }
 
-  n = 2; //number of servers
   nodeName = "servern";
   ndn::AppHelper producerHelper ("ns3::ndn::Producer");
-  for (int i = 0 ; i < n ; i++)
+  for (int i = 0 ; i < NUMOFSERVER ; i++)
     {
       nodeName[ nodeName.size() - 1 ] = '1'+i;
       Ptr<Node> server = Names::Find<Node> (nodeName);
-      producerHelper.SetPrefix (contentName);
+      producerHelper.SetPrefix (CONTENTNAME);
       producerHelper.Install (server);
     }
 }
@@ -128,7 +142,7 @@ main (int argc, char *argv[])
   InstallNdnStack ( true );
   AddNdnApplications ();
 
-  Simulator::Stop (Seconds (8.0));
+  Simulator::Stop (Seconds (50.0));
   Simulator::Run ();
   Simulator::Destroy ();
 
