@@ -88,6 +88,9 @@ public:
    */
   virtual void
   WillSendOutInterest (uint32_t sequenceNumber);
+
+  virtual uint8_t
+  GetStrategy () const;
   
 protected:
   // from App
@@ -126,17 +129,18 @@ protected:
 protected:
   UniformVariable m_rand; ///< @brief nonce generator
 
-  uint32_t        m_seq;  ///< @brief currently requested sequence number
-  uint32_t        m_seqMax;    ///< @brief maximum number of sequence number
-  EventId         m_sendEvent; ///< @brief EventId of pending "send packet" event
-  Time            m_retxTimer; ///< @brief Currently estimated retransmission timer
-  EventId         m_retxEvent; ///< @brief Event to check whether or not retransmission should be performed
+  uint32_t          m_seq;  ///< @brief currently requested sequence number
+  uint32_t          m_seqMax;    ///< @brief maximum number of sequence number
+  EventId           m_sendEvent; ///< @brief EventId of pending "send packet" event
+  Time              m_retxTimer; ///< @brief Currently estimated retransmission timer
+  EventId           m_retxEvent; ///< @brief Event to check whether or not retransmission should be performed
 
   Ptr<RttEstimator> m_rtt; ///< @brief RTT estimator
 
-  Time               m_offTime;             ///< \brief Time interval between packets
-  Name     m_interestName;        ///< \brief NDN Name of the Interest (use Name)
-  Time               m_interestLifeTime;    ///< \brief LifeTime for interest packet
+  Time              m_offTime;             ///< \brief Time interval between packets
+  Name              m_interestName;        ///< \brief NDN Name of the Interest (use Name)
+  Time              m_interestLifeTime;    ///< \brief LifeTime for interest packet
+  uint8_t           m_strategy;
 
 /// @cond include_hidden
   /**

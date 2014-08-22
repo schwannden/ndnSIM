@@ -62,6 +62,10 @@ Consumer::GetTypeId (void)
                    StringValue ("/"),
                    MakeNameAccessor (&Consumer::m_interestName),
                    MakeNameChecker ())
+    .AddAttribute ("Strategy","Strategy of the Interest",
+                   IntegerValue (1),
+                   MakeIntegerAccessor (&Consumer::m_strategy),
+                   MakeIntegerChecker<uint8_t> ())
     .AddAttribute ("LifeTime", "LifeTime for interest packet",
                    StringValue ("2s"),
                    MakeTimeAccessor (&Consumer::m_interestLifeTime),
@@ -87,6 +91,7 @@ Consumer::Consumer ()
   : m_rand (0, std::numeric_limits<uint32_t>::max ())
   , m_seq (0)
   , m_seqMax (0) // don't request anything
+  , m_strategy (1) // default to flooding
 {
   NS_LOG_FUNCTION_NOARGS ();
 
@@ -200,11 +205,12 @@ Consumer::SendPacket ()
 
   Ptr<Interest> interest = Create<Interest> ();
   interest->SetNonce               (m_rand.GetValue ());
+  interest->SetStrategy            (m_strategy);
   interest->SetName                (nameWithSequence);
   interest->SetInterestLifetime    (m_interestLifeTime);
 
   // NS_LOG_INFO ("Requesting Interest: \n" << *interest);
-  NS_LOG_INFO ("> Interest for " << seq);
+  NS_LOG_INFO ("> Interest for " << seq << ", strategy " << (int)m_strategy);
 
   WillSendOutInterest (seq);  
 
@@ -216,6 +222,13 @@ Consumer::SendPacket ()
 
   ScheduleNextPacket ();
 }
+
+uint8_t
+Consumer::GetStrategy () const
+{
+  return m_strategy;
+}
+  
 
 ///////////////////////////////////////////////////
 //          Process incoming packets             //

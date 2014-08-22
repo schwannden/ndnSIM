@@ -51,6 +51,9 @@ public:
    */
   void
   SetPrefix (const std::string &prefix);
+
+  void
+  SetStrategy (const uint8_t strategy);
   
   /**
    * \brief Helper function used to set the underlying application attributes.

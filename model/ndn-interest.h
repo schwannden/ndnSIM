@@ -122,6 +122,12 @@ public:
   void
   SetInterestLifetime (Time time);
 
+  void
+  SetStrategy (int8_t stratgey = 2);
+
+  int8_t
+  GetStrategy () const;
+
   /**
    * \brief Get InterestLifetime value
    * InterestLifetime indicates the (approximate) time remaining before the interest times out.
@@ -227,6 +233,7 @@ public:
    */
   void
   Print (std::ostream &os) const;
+
   
 private:
   // NO_ASSIGN
@@ -236,6 +243,7 @@ private:
 private:
   Ptr<Name> m_name;         ///< @brief Interest name
   uint8_t m_scope;          ///< @brief 0xFF not set, 0 local scope, 1 this host, 2 immediate neighborhood
+  uint8_t m_strategy;       ///< @brief 0x01: Flooding, 0x02: SmartFlooding, 0x03: BestRoute
   Time  m_interestLifetime; ///< @brief InterestLifetime
   uint32_t m_nonce;         ///< @brief Nonce. not used if zero
   uint8_t  m_nackType;      ///< @brief Negative Acknowledgement type

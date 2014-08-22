@@ -59,6 +59,22 @@ public:
                        Ptr<const Interest> interest,
                        Ptr<pit::Entry> pitEntry);
 
+  //member function
+  virtual bool
+  DoPropagateInterest_Flooding (Ptr<Face> inFace,
+                                Ptr<const Interest> interest,
+                                Ptr<pit::Entry> pitEntry);
+
+  virtual bool
+  DoPropagateInterest_SmartFlooding (Ptr<Face> inFace,
+                                     Ptr<const Interest> interest,
+                                     Ptr<pit::Entry> pitEntry);
+
+  virtual bool
+  DoPropagateInterest_BestRoute (Ptr<Face> inFace,
+                                 Ptr<const Interest> interest,
+                                 Ptr<pit::Entry> pitEntry);
+
 protected:
   static LogComponent g_log;
 };

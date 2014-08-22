@@ -316,6 +316,10 @@ ForwardingStrategy::DidExhaustForwardingOptions (Ptr<Face> inFace,
                                                  Ptr<const Interest> interest,
                                                  Ptr<pit::Entry> pitEntry)
 {
+  static int debug_i = 0;
+  if( ++debug_i == 102 ) {
+    debug_i = 0;
+  }
   NS_LOG_FUNCTION (this << boost::cref (*inFace));
   if (pitEntry->AreAllOutgoingInVain ())
     {

@@ -21,6 +21,7 @@
 #include "ndn-app-helper.h"
 #include "ns3/log.h"
 #include "ns3/string.h"
+#include "ns3/integer.h"
 #include "ns3/names.h"
 #include "ns3/ndn-app.h"
 
@@ -42,6 +43,12 @@ void
 AppHelper::SetPrefix (const std::string &prefix)
 {
   m_factory.Set ("Prefix", StringValue(prefix));
+}
+
+void
+AppHelper::SetStrategy (const uint8_t strategy)
+{
+  m_factory.Set ("Strategy", IntegerValue(strategy));
 }
 
 void 

@@ -103,7 +103,7 @@ Interest::GetSerializedSize (void) const
 {
   size_t size =
     1/*version*/ + 1 /*type*/ + 2/*length*/ +
-    (4/*nonce*/ + 1/*scope*/ + 1/*nack type*/ + 2/*timestamp*/ +
+    (4/*nonce*/ + 1/*scope*/ + 1/*strategy*/ + 1/*nack type*/ + 2/*timestamp*/ +
      NdnSim::SerializedSizeName (m_interest->GetName ()) +
 
      (2 +
@@ -126,6 +126,7 @@ Interest::Serialize (Buffer::Iterator start) const
 
   start.WriteU32 (m_interest->GetNonce ());
   start.WriteU8 (m_interest->GetScope ());
+  start.WriteU8 (m_interest->GetStrategy ());
   start.WriteU8 (m_interest->GetNack ());
 
   NS_ASSERT_MSG (0 <= m_interest->GetInterestLifetime ().ToInteger (Time::S) && m_interest->GetInterestLifetime ().ToInteger (Time::S) < 65535,
@@ -165,6 +166,7 @@ Interest::Deserialize (Buffer::Iterator start)
   
   m_interest->SetNonce (i.ReadU32 ());
   m_interest->SetScope (i.ReadU8 ());
+  m_interest->SetStrategy (i.ReadU8 ());
   m_interest->SetNack (i.ReadU8 ());
 
   m_interest->SetInterestLifetime (Seconds (i.ReadU16 ()));

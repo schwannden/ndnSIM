@@ -32,6 +32,7 @@ namespace ndn {
 Interest::Interest (Ptr<Packet> payload/* = Create<Packet> ()*/)
   : m_name ()
   , m_scope (0xFF)
+  , m_strategy (0x01)
   , m_interestLifetime (Seconds (0))
   , m_nonce (0)
   , m_nackType (NORMAL_INTEREST)
@@ -48,6 +49,7 @@ Interest::Interest (Ptr<Packet> payload/* = Create<Packet> ()*/)
 Interest::Interest (const Interest &interest)
   : m_name             (Create<Name> (interest.GetName ()))
   , m_scope            (interest.m_scope)
+  , m_strategy         (interest.m_strategy)
   , m_interestLifetime (interest.m_interestLifetime)
   , m_nonce            (interest.m_nonce)
   , m_nackType         (interest.m_nackType)
@@ -96,6 +98,19 @@ int8_t
 Interest::GetScope () const
 {
   return m_scope;
+}
+
+void
+Interest::SetStrategy (int8_t strategy)
+{
+  m_strategy = strategy;
+  m_wire = 0;
+}
+
+int8_t
+Interest::GetStrategy () const
+{
+  return m_strategy;
 }
 
 void

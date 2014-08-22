@@ -35,6 +35,7 @@
 #include "ns3/ndn-face-container.h"
 #include "ns3/ndn-global-routing-helper.h"
 #include "ns3/ndnSIM-module.h"
+#include "ns3/ndnSIM/apps/ndn-consumer.h"
 #include "ns3/ndnSIM/utils/tracers/ndn-l3-rate-tracer.h"
 #include "ns3/ndnSIM/plugins/topology/rocketfuel-weights-reader.h"
 
@@ -49,7 +50,7 @@
 #endif
 
 #ifndef NUMOFSERVER
-#define NUMOFSERVER 2
+#define NUMOFSERVER 3
 #endif
 
 #ifndef CONTENTNAME
@@ -88,11 +89,13 @@ InstallNdnStack (bool installFIBs/* = true*/)
   ndn::GlobalRoutingHelper ndnGlobalRoutingHelper;
   ndnGlobalRoutingHelper.InstallAll ();
 
-  Ptr<Node> server1 = Names::Find<Node> ( "server1" );
-  ndnGlobalRoutingHelper.AddOrigins ( CONTENTNAME, server1 );
-
-  Ptr<Node> server2 = Names::Find<Node> ( "server2" );
-  ndnGlobalRoutingHelper.AddOrigins ( CONTENTNAME, server2 );
+  string nodeName( "servern" );
+  for( int i = 0 ; i < NUMOFSERVER ; i++ )
+    {
+      nodeName[ nodeName.size() - 1 ] = '1'+i;
+      Ptr<Node> server = Names::Find<Node> ( nodeName );
+      ndnGlobalRoutingHelper.AddOrigins ( CONTENTNAME, server );
+    }
 
   ndn::GlobalRoutingHelper::CalculateRoutes ();
 }
@@ -104,6 +107,7 @@ AddNdnApplications ()
 
   ndn::AppHelper consumerHelper ("ns3::ndn::ConsumerWindow");
   consumerHelper.SetPrefix (CONTENTNAME);
+  consumerHelper.SetStrategy (2);
   consumerHelper.SetAttribute ("Size", StringValue ("2.0"));
 
   string nodeName( "clientn" );
@@ -112,7 +116,7 @@ AddNdnApplications ()
       nodeName[ nodeName.size() - 1 ] = '1'+i;
       Ptr<Node> client = Names::Find<Node> (nodeName);
       app = consumerHelper.Install (client);
-      app.Start (Seconds (2*i));
+      app.Start (Seconds (10*i));
     }
 
   nodeName = "servern";
@@ -142,7 +146,7 @@ main (int argc, char *argv[])
   InstallNdnStack ( true );
   AddNdnApplications ();
 
-  Simulator::Stop (Seconds (50.0));
+  Simulator::Stop (Seconds (40.0));
   Simulator::Run ();
   Simulator::Destroy ();
 

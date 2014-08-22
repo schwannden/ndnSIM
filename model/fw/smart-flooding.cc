@@ -66,12 +66,57 @@ SmartFlooding::SmartFlooding ()
 }
 
 bool
-SmartFlooding::DoPropagateInterest (Ptr<Face> inFace,
-                                    Ptr<const Interest> interest,
-                                    Ptr<pit::Entry> pitEntry)
+SmartFlooding::DoPropagateInterest_BestRoute (Ptr<Face> inFace,
+                                              Ptr<const Interest> interest,
+                                              Ptr<pit::Entry> pitEntry)
 {
-  NS_LOG_FUNCTION (this);
+  int propagatedCount = 0;
 
+  BOOST_FOREACH (const fib::FaceMetric &metricFace, pitEntry->GetFibEntry ()->m_faces.get<fib::i_metric> ())
+    {
+      if (metricFace.GetStatus () == fib::FaceMetric::NDN_FIB_RED) // all non-read faces are in front
+        break;
+
+      if (!TrySendOutInterest (inFace, metricFace.GetFace (), interest, pitEntry))
+        {
+          continue;
+        }
+
+      propagatedCount++;
+      break; // do only once
+    }
+
+  return propagatedCount > 0;
+}
+
+bool
+SmartFlooding::DoPropagateInterest_Flooding (Ptr<Face> inFace,
+                                             Ptr<const Interest> interest,
+                                             Ptr<pit::Entry> pitEntry)
+{
+  int propagatedCount = 0;
+
+  BOOST_FOREACH (const fib::FaceMetric &metricFace, pitEntry->GetFibEntry ()->m_faces.get<fib::i_metric> ())
+    {
+      if (metricFace.GetStatus () == fib::FaceMetric::NDN_FIB_RED) // all non-read faces are in the front of the list
+        break;
+
+      if (!TrySendOutInterest (inFace, metricFace.GetFace (), interest, pitEntry))
+        {
+          continue;
+        }
+
+      propagatedCount++;
+    }
+
+  return propagatedCount > 0;
+}
+
+bool
+SmartFlooding::DoPropagateInterest_SmartFlooding (Ptr<Face> inFace,
+                                                  Ptr<const Interest> interest,
+                                                  Ptr<pit::Entry> pitEntry)
+{
   // Try to work out with just the best green face
   if (super::DoPropagateInterest (inFace, interest, pitEntry))
     return true;
@@ -81,7 +126,6 @@ SmartFlooding::DoPropagateInterest (Ptr<Face> inFace,
 
   BOOST_FOREACH (const fib::FaceMetric &metricFace, pitEntry->GetFibEntry ()->m_faces.get<fib::i_metric> ())
     {
-      NS_LOG_DEBUG ("Trying " << boost::cref(metricFace));
       if (metricFace.GetStatus () != fib::FaceMetric::NDN_FIB_RED)
         {
           if (TrySendOutInterest (inFace, metricFace.GetFace (), interest, pitEntry))
@@ -94,8 +138,27 @@ SmartFlooding::DoPropagateInterest (Ptr<Face> inFace,
         }
     }
 
-  NS_LOG_INFO ("Propagated to " << propagatedCount << " faces");
   return propagatedCount > 0;
+}
+
+bool
+SmartFlooding::DoPropagateInterest (Ptr<Face> inFace,
+                                    Ptr<const Interest> interest,
+                                    Ptr<pit::Entry> pitEntry)
+{
+  NS_LOG_FUNCTION (this);
+  bool propagated = false;
+  int strategy = interest->GetStrategy ();
+  switch( strategy )
+    {
+      case 1: propagated = DoPropagateInterest_Flooding (inFace, interest, pitEntry);
+                 break;
+      case 2: propagated = DoPropagateInterest_SmartFlooding (inFace, interest, pitEntry);
+                 break;
+      case 3: propagated = DoPropagateInterest_BestRoute (inFace, interest, pitEntry);
+                 break;
+    }
+  return propagated;
 }
 
 } // namespace fw
