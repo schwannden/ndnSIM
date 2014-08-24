@@ -210,6 +210,7 @@ Consumer::SendPacket ()
   interest->SetInterestLifetime    (m_interestLifeTime);
 
   // NS_LOG_INFO ("Requesting Interest: \n" << *interest);
+  std::cout << Simulator::Now() << " Node: " << GetNode ()->GetId() << ", Interest for: " << seq << std::endl;
   NS_LOG_INFO ("> Interest for " << seq << ", strategy " << (int)m_strategy);
 
   WillSendOutInterest (seq);  
@@ -247,6 +248,7 @@ Consumer::OnData (Ptr<const Data> data)
   // NS_LOG_INFO ("Received content object: " << boost::cref(*data));
 
   uint32_t seq = data->GetName ().get (-1).toSeqNum ();
+  std::cout << Simulator::Now() << " Node: " << GetNode ()->GetId() << ", Content for: " << seq << std::endl;
   NS_LOG_INFO ("< DATA for " << seq);
 
   int hopCount = -1;
@@ -291,6 +293,7 @@ Consumer::OnNack (Ptr<const Interest> interest)
 
   // NS_LOG_INFO ("Received NACK: " << boost::cref(*interest));
   uint32_t seq = interest->GetName ().get (-1).toSeqNum ();
+  std::cout << Simulator::Now() << " Node: " << GetNode ()->GetId() << ", Nack for: " << seq << std::endl;
   NS_LOG_INFO ("< NACK for " << seq);
   // std::cout << Simulator::Now ().ToDouble (Time::S) << "s -> " << "NACK for " << seq << "\n";
 

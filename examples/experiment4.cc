@@ -18,32 +18,17 @@
  * Author: Alexander Afanasyev <alexander.afanasyev@ucla.edu>
  */
 // ndn-simple.cc
-#include "ns3/application-container.h"
-#include "ns3/applications-module.h"
 #include "ns3/core-module.h"
-#include "ns3/internet-module.h"
-#include "ns3/internet-stack-helper.h"
-#include "ns3/log.h"
 #include "ns3/names.h"
-#include "ns3/network-module.h"
-#include "ns3/nstime.h"
-#include "ns3/point-to-point-module.h"
 #include "ns3/ptr.h"
 #include "ns3/random-variable.h"
 #include "ns3/simulator.h"
-#include "ns3/ndn-stack-helper.h"
-#include "ns3/ndn-face-container.h"
 #include "ns3/ndn-global-routing-helper.h"
 #include "ns3/ndnSIM-module.h"
 #include "ns3/ndnSIM/apps/ndn-consumer.h"
 #include "ns3/ndnSIM/utils/tracers/ndn-l3-rate-tracer.h"
 #include "ns3/ndnSIM/plugins/topology/rocketfuel-weights-reader.h"
 
-#include <list>
-#include <set>
-#include <boost/tuple/tuple.hpp>
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
 
 #ifndef NUMOFCLIENT
 #define NUMOFCLIENT 4
@@ -82,7 +67,7 @@ InstallNdnStack (bool installFIBs/* = true*/)
 {
   // Install NDN stack
   ndn::StackHelper ndnHelper;
-  ndnHelper.SetForwardingStrategy ("ns3::ndn::fw::SmartFlooding");
+  ndnHelper.SetForwardingStrategy ("ns3::ndn::fw::SmartFlooding", "EnableNACKs", "true");
   ndnHelper.SetDefaultRoutes (false);
   ndnHelper.InstallAll ();
 
@@ -107,12 +92,12 @@ AddNdnApplications ()
 
   ndn::AppHelper consumerHelper ("ns3::ndn::ConsumerWindow");
   consumerHelper.SetPrefix (CONTENTNAME);
-  consumerHelper.SetStrategy (2);
-  consumerHelper.SetAttribute ("Size", StringValue ("2.0"));
+  consumerHelper.SetAttribute ("Size", StringValue ("8.0"));
 
   string nodeName( "clientn" );
   for (int i = 0 ; i < NUMOFCLIENT ; i++)
     {
+      consumerHelper.SetStrategy ((i%2) + 2);
       nodeName[ nodeName.size() - 1 ] = '1'+i;
       Ptr<Node> client = Names::Find<Node> (nodeName);
       app = consumerHelper.Install (client);
