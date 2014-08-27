@@ -29,7 +29,6 @@
 #include "ns3/ndnSIM/utils/tracers/ndn-l3-rate-tracer.h"
 #include "ns3/ndnSIM/plugins/topology/rocketfuel-weights-reader.h"
 
-
 #ifndef NUMOFCLIENT
 #define NUMOFCLIENT 4
 #endif
@@ -67,7 +66,10 @@ InstallNdnStack (bool installFIBs/* = true*/)
 {
   // Install NDN stack
   ndn::StackHelper ndnHelper;
-  ndnHelper.SetForwardingStrategy ("ns3::ndn::fw::SmartFlooding", "EnableNACKs", "true");
+  ndnHelper.SetForwardingStrategy ("ns3::ndn::fw::SmartFlooding::PerOutFaceLimits",
+                                   "EnableNACKs", "true",
+                                   "Limit", "ns3::ndn::Limits::Rate");
+  ndnHelper.EnableLimits ();
   ndnHelper.SetDefaultRoutes (false);
   ndnHelper.InstallAll ();
 
@@ -92,16 +94,16 @@ AddNdnApplications ()
 
   ndn::AppHelper consumerHelper ("ns3::ndn::ConsumerWindow");
   consumerHelper.SetPrefix (CONTENTNAME);
-  consumerHelper.SetAttribute ("Size", StringValue ("8.0"));
+  consumerHelper.SetAttribute ("Size", StringValue ("4.0"));
 
   string nodeName( "clientn" );
   for (int i = 0 ; i < NUMOFCLIENT ; i++)
     {
-      consumerHelper.SetStrategy ((i%2) + 2);
       nodeName[ nodeName.size() - 1 ] = '1'+i;
       Ptr<Node> client = Names::Find<Node> (nodeName);
+      consumerHelper.SetStrategy ((i%2)*2 + 1);
       app = consumerHelper.Install (client);
-      app.Start (Seconds (10*i));
+      app.Start (Seconds (1*i));
     }
 
   nodeName = "servern";
@@ -131,7 +133,7 @@ main (int argc, char *argv[])
   InstallNdnStack ( true );
   AddNdnApplications ();
 
-  Simulator::Stop (Seconds (40.0));
+  Simulator::Stop (Seconds (10.0));
   Simulator::Run ();
   Simulator::Destroy ();
 

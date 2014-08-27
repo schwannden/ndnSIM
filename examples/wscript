@@ -86,6 +86,9 @@ def build(bld):
     obj = bld.create_ns3_program('ndn-simple-with-pit-count-stats', all_modules)
     obj.source = 'ndn-simple-with-pit-count-stats.cc'
 
+    obj = bld.create_ns3_program('experiment', all_modules)
+    obj.source = 'experiment.cc'
+
     obj = bld.create_ns3_program('experiment1', all_modules)
     obj.source = 'experiment1.cc'
 

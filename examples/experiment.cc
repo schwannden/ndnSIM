@@ -29,10 +29,6 @@
 #include "ns3/ndnSIM/utils/tracers/ndn-l3-rate-tracer.h"
 #include "ns3/ndnSIM/plugins/topology/rocketfuel-weights-reader.h"
 
-#ifndef FW_STRATEGY
-#define FW_STRATEGY 3
-#endif
-
 #ifndef NUMOFCLIENT
 #define NUMOFCLIENT 4
 #endif
@@ -43,6 +39,10 @@
 
 #ifndef CONTENTNAME
 #define CONTENTNAME "/content"
+#endif
+
+#ifndef FW_STRATEGY
+#define FW_STRATEGY 3
 #endif
 
 using namespace std;
@@ -99,7 +99,7 @@ AddNdnApplications ()
   ndn::AppHelper consumerHelper ("ns3::ndn::ConsumerWindow");
   consumerHelper.SetPrefix (CONTENTNAME);
   consumerHelper.SetStrategy (FW_STRATEGY);
-  consumerHelper.SetAttribute ("Size", StringValue ("4.0"));
+  consumerHelper.SetAttribute ("Size", StringValue ("8.0"));
 
   string nodeName( "clientn" );
   for (int i = 0 ; i < NUMOFCLIENT ; i++)
@@ -107,7 +107,7 @@ AddNdnApplications ()
       nodeName[ nodeName.size() - 1 ] = '1'+i;
       Ptr<Node> client = Names::Find<Node> (nodeName);
       app = consumerHelper.Install (client);
-      app.Start (Seconds (1*i));
+      app.Start (Seconds (4*i));
     }
 
   nodeName = "servern";
@@ -137,7 +137,7 @@ main (int argc, char *argv[])
   InstallNdnStack ( true );
   AddNdnApplications ();
 
-  Simulator::Stop (Seconds (10.0));
+  Simulator::Stop (Seconds (20.0));
   Simulator::Run ();
   Simulator::Destroy ();
 
