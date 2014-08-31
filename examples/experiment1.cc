@@ -26,20 +26,9 @@
 #include "ns3/ndn-global-routing-helper.h"
 #include "ns3/ndnSIM-module.h"
 #include "ns3/ndnSIM/apps/ndn-consumer.h"
+#include "ns3/ndnSIM/examples/parameters.h"
 #include "ns3/ndnSIM/utils/tracers/ndn-l3-rate-tracer.h"
 #include "ns3/ndnSIM/plugins/topology/rocketfuel-weights-reader.h"
-
-#ifndef NUMOFCLIENT
-#define NUMOFCLIENT 4
-#endif
-
-#ifndef NUMOFSERVER
-#define NUMOFSERVER 3
-#endif
-
-#ifndef CONTENTNAME
-#define CONTENTNAME "/content"
-#endif
 
 #ifndef FW_STRATEGY
 #define FW_STRATEGY 1
@@ -92,6 +81,18 @@ InstallNdnStack (bool installFIBs/* = true*/)
 }
 
 void
+StartClient (ApplicationContainer app, double t )
+{
+  app.Start (Seconds (t));
+}
+
+void
+StopClient (ApplicationContainer app, double t )
+{
+  app.Start (Seconds (t));
+}
+
+void
 AddNdnApplications ()
 {
   ApplicationContainer app;
@@ -99,15 +100,39 @@ AddNdnApplications ()
   ndn::AppHelper consumerHelper ("ns3::ndn::ConsumerWindow");
   consumerHelper.SetPrefix (CONTENTNAME);
   consumerHelper.SetStrategy (FW_STRATEGY);
-  consumerHelper.SetAttribute ("Size", StringValue ("4.0"));
+  consumerHelper.SetAttribute ("Size", StringValue (CONTENTSIZE));
 
   string nodeName( "clientn" );
-  for (int i = 0 ; i < NUMOFCLIENT ; i++)
+  if( strcmp (TOPOLOGY, "src/ndnSIM/examples/topologies/scenario1.txt") == 0 )
     {
-      nodeName[ nodeName.size() - 1 ] = '1'+i;
-      Ptr<Node> client = Names::Find<Node> (nodeName);
-      app = consumerHelper.Install (client);
-      app.Start (Seconds (1*i));
+      for (int i = 0 ; i < NUMOFCLIENT ; i++)
+        {
+          nodeName[ nodeName.size() - 1 ] = '1'+i;
+          Ptr<Node> client = Names::Find<Node> (nodeName);
+          app = consumerHelper.Install (client);
+          app.Start (Seconds (i*INTERMISSION));
+        }
+    }
+  else
+    {
+      for (int i = 0 ; i < NUMOFCLIENT/2 ; i++)
+        {
+          nodeName[ nodeName.size() - 1 ] = '1'+i;
+          Ptr<Node> client = Names::Find<Node> (nodeName);
+          app = consumerHelper.Install (client);
+          app.Start (Seconds (0.0));
+          Simulator::Schedule (Seconds (INTERMISSION), ndn::LinkControlHelper::FailLink,
+                               Names::Find<Node> (nodeName), Names::Find<Node> ("router1"));
+          Simulator::Schedule (Seconds (2*INTERMISSION), ndn::LinkControlHelper::UpLink,
+                               Names::Find<Node> (nodeName), Names::Find<Node> ("router1"));
+        }
+      for (int i = NUMOFCLIENT/2 ; i < NUMOFCLIENT ; i++)
+        {
+          nodeName[ nodeName.size() - 1 ] = '1'+i;
+          Ptr<Node> client = Names::Find<Node> (nodeName);
+          app = consumerHelper.Install (client);
+          app.Start (Seconds (INTERMISSION));
+        }
     }
 
   nodeName = "servern";
@@ -133,11 +158,11 @@ main (int argc, char *argv[])
 
   string prefix = "results/congestion-zoom-ndn-";
 
-  ConfigureTopology ("src/ndnSIM/examples/topologies/congestion-zoom.txt");
+  ConfigureTopology (TOPOLOGY);
   InstallNdnStack ( true );
   AddNdnApplications ();
 
-  Simulator::Stop (Seconds (10.0));
+  Simulator::Stop (Seconds (ENDTIME));
   Simulator::Run ();
   Simulator::Destroy ();
 

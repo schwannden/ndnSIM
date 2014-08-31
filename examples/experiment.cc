@@ -133,7 +133,7 @@ main (int argc, char *argv[])
 
   string prefix = "results/congestion-zoom-ndn-";
 
-  ConfigureTopology ("src/ndnSIM/examples/topologies/congestion-zoom.txt");
+  ConfigureTopology (TOPOLOGY);
   InstallNdnStack ( true );
   AddNdnApplications ();
 

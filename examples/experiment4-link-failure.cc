@@ -24,8 +24,10 @@
 #include "ns3/random-variable.h"
 #include "ns3/simulator.h"
 #include "ns3/ndn-global-routing-helper.h"
+#include "ns3/ndn-link-control-helper.h"
 #include "ns3/ndnSIM-module.h"
 #include "ns3/ndnSIM/apps/ndn-consumer.h"
+#include "ns3/ndnSIM/examples/parameters.h"
 #include "ns3/ndnSIM/utils/tracers/ndn-l3-rate-tracer.h"
 #include "ns3/ndnSIM/plugins/topology/rocketfuel-weights-reader.h"
 
@@ -85,37 +87,13 @@ AddNdnApplications ()
   consumerHelper.SetAttribute ("Size", StringValue (CONTENTSIZE));
 
   string nodeName( "clientn" );
-  if( strcmp (TOPOLOGY, "src/ndnSIM/examples/topologies/scenario1.txt") == 0 )
+  for (int i = 0 ; i < NUMOFCLIENT ; i++)
     {
-      for (int i = 0 ; i < NUMOFCLIENT ; i++)
-        {
-          nodeName[ nodeName.size() - 1 ] = '1'+i;
-          Ptr<Node> client = Names::Find<Node> (nodeName);
-          app = consumerHelper.Install (client);
-          app.Start (Seconds (i*INTERMISSION));
-        }
-    }
-  else
-    {
-      for (int i = 0 ; i < NUMOFCLIENT/2 ; i++)
-        {
-          nodeName[ nodeName.size() - 1 ] = '1'+i;
-          Ptr<Node> client = Names::Find<Node> (nodeName);
-          consumerHelper.SetStrategy ((i%2)*2 + 1);
-          app = consumerHelper.Install (client);
-          app.Start (Seconds (0.0));
-          Simulator::Schedule (Seconds (INTERMISSION), ndn::LinkControlHelper::FailLink,
-                               Names::Find<Node> (nodeName), Names::Find<Node> ("router1"));
-          Simulator::Schedule (Seconds (2*INTERMISSION), ndn::LinkControlHelper::UpLink,
-                               Names::Find<Node> (nodeName), Names::Find<Node> ("router1"));
-        }
-      for (int i = NUMOFCLIENT/2 ; i < NUMOFCLIENT ; i++)
-        {
-          nodeName[ nodeName.size() - 1 ] = '1'+i;
-          Ptr<Node> client = Names::Find<Node> (nodeName);
-          app = consumerHelper.Install (client);
-          app.Start (Seconds (INTERMISSION));
-        }
+      nodeName[ nodeName.size() - 1 ] = '1'+i;
+      Ptr<Node> client = Names::Find<Node> (nodeName);
+      consumerHelper.SetStrategy ((i%2)*2 + 1);
+      app = consumerHelper.Install (client);
+      app.Start (Seconds (i*INTERMISSION));
     }
 
   nodeName = "servern";
@@ -145,6 +123,12 @@ main (int argc, char *argv[])
   InstallNdnStack ( true );
   AddNdnApplications ();
 
+  Simulator::Schedule (Seconds (CONFIG_T1), CONFIG_E1, Names::Find<Node> (CONFIG_N11), Names::Find<Node> (CONFIG_N12));
+  Simulator::Schedule (Seconds (CONFIG_T2), CONFIG_E2, Names::Find<Node> (CONFIG_N21), Names::Find<Node> (CONFIG_N22));
+  Simulator::Schedule (Seconds (CONFIG_T3), CONFIG_E3, Names::Find<Node> (CONFIG_N31), Names::Find<Node> (CONFIG_N32));
+  Simulator::Schedule (Seconds (CONFIG_T4), CONFIG_E4, Names::Find<Node> (CONFIG_N41), Names::Find<Node> (CONFIG_N42));
+  Simulator::Schedule (Seconds (CONFIG_T5), CONFIG_E5, Names::Find<Node> (CONFIG_N51), Names::Find<Node> (CONFIG_N52));
+  Simulator::Schedule (Seconds (CONFIG_T6), CONFIG_E6, Names::Find<Node> (CONFIG_N61), Names::Find<Node> (CONFIG_N62));
   Simulator::Stop (Seconds (ENDTIME));
   Simulator::Run ();
   Simulator::Destroy ();

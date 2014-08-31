@@ -123,6 +123,7 @@ def build(bld):
                            'apps/**/*.h',
                            'helper/**/*.h',
                            'ndn.cxx/**/*.h',
+                           'examples/parameters.h',
                            ])]
 
     headers.source = [
@@ -183,6 +184,7 @@ def build(bld):
         "utils/tracers/ndn-l3-rate-tracer.h",
 
         "apps/callback-based-app.h",
+        "examples/parameters.h",
         ]
 
     if 'topology' in bld.env['NDN_plugins']:

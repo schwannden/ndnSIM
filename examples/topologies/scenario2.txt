@@ -1,0 +1,36 @@
+router
+#name    city     latitude         longitude
+client1  unknown  40              -40
+client2  unknown  20              -40
+client3  unknown  -20             -40
+client4  unknown  -40             -40
+client5  unknown  40              40
+client6  unknown  20              40
+client7  unknown  -20             40
+client8  unknown  -40             40
+router1  unknown  1               -20
+router2  unknown  17              -10
+router3  unknown  1               20
+router4  unknown  -17             10
+server1  unknown  -17             -10
+server2  unknown  1               1
+server3  unknown  17              10
+
+link
+#x       y        capacity(kbps)  OSPF  Delay  MaxPackets
+client1  router1  10Mbps          1     10ms    20
+client2  router1  10Mbps          1     10ms    20
+client3  router1  10Mbps          1     10ms    20
+client4  router1  10Mbps          1     10ms    20
+router1  server1  10Mbps          1     10ms    20    
+router1  server2  10Mbps          1     10ms    20
+router1  router2  10Mbps          1     10ms    20
+router2  server3  10Mbps          1     10ms    20
+client5  router3  10Mbps          1     10ms    20
+client6  router3  10Mbps          1     10ms    20
+client7  router3  10Mbps          1     10ms    20
+client8  router3  10Mbps          1     10ms    20
+router3  server3  10Mbps          1     10ms    20    
+router3  server2  10Mbps          1     10ms    20
+router3  router4  10Mbps          1     10ms    20
+router4  server1  10Mbps          1     10ms    20
