@@ -1,30 +1,10 @@
-#ifndef NUMOFCLIENT
 #define NUMOFCLIENT (4)
-#endif
-
-#ifndef NUMOFSERVER
 #define NUMOFSERVER (3)
-#endif
-
-#ifndef CONTENTNAME
 #define CONTENTNAME ("/content")
-#endif
-
-#ifndef CONTENTSIZE
 #define CONTENTSIZE ("10.0")  /*MB*/
-#endif
-
-#ifndef INTERMISSION
 #define INTERMISSION (1.0)
-#endif
-
-#ifndef ENDTIME
 #define ENDTIME (20.0)
-#endif
-
-#ifndef TOPOLOGY
 #define TOPOLOGY ("src/ndnSIM/examples/topologies/scenario1.txt")
-#endif
 
 #define CONFIG_T1  (0.0)
 #define CONFIG_E1  (ndn::LinkControlHelper::FailLink)
