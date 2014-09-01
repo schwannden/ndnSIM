@@ -15,7 +15,7 @@
 #endif
 
 #ifndef INTERMISSION
-#define INTERMISSION (4)
+#define INTERMISSION (1.0)
 #endif
 
 #ifndef ENDTIME

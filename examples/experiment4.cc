@@ -91,6 +91,7 @@ AddNdnApplications ()
         {
           nodeName[ nodeName.size() - 1 ] = '1'+i;
           Ptr<Node> client = Names::Find<Node> (nodeName);
+          consumerHelper.SetStrategy ((i%2)*2 + 1);
           app = consumerHelper.Install (client);
           app.Start (Seconds (i*INTERMISSION));
         }
