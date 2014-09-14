@@ -85,7 +85,7 @@ AddNdnApplications ()
   consumerHelper.SetAttribute ("Size", StringValue (CONTENTSIZE));
 
   string nodeName( "clientn" );
-  if( strcmp (TOPOLOGY, "src/ndnSIM/examples/topologies/scenario1.txt") == 0 )
+  if( strcmp (TOPOLOGY, "src/ndnSIM/examples/topologies/topology1.txt") == 0 )
     {
       for (int i = 0 ; i < NUMOFCLIENT ; i++)
         {

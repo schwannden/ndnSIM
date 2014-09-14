@@ -87,13 +87,39 @@ AddNdnApplications ()
   consumerHelper.SetAttribute ("Size", StringValue (CONTENTSIZE));
 
   string nodeName( "clientn" );
-  for (int i = 0 ; i < NUMOFCLIENT ; i++)
+  if( strcmp (TOPOLOGY, "src/ndnSIM/examples/topologies/topology1.txt") == 0 )
     {
-      nodeName[ nodeName.size() - 1 ] = '1'+i;
-      Ptr<Node> client = Names::Find<Node> (nodeName);
-      consumerHelper.SetStrategy ((i%2)*2 + 1);
-      app = consumerHelper.Install (client);
-      app.Start (Seconds (i*INTERMISSION));
+      for (int i = 0 ; i < NUMOFCLIENT ; i++)
+        {
+          nodeName[ nodeName.size() - 1 ] = '1'+i;
+          Ptr<Node> client = Names::Find<Node> (nodeName);
+          consumerHelper.SetStrategy ((i%2)*2 + 1);
+          app = consumerHelper.Install (client);
+          app.Start (Seconds (i*INTERMISSION));
+        }
+    }
+  else
+    {
+      for (int i = 0 ; i < NUMOFCLIENT/2 ; i++)
+        {
+          nodeName[ nodeName.size() - 1 ] = '1'+i;
+          Ptr<Node> client = Names::Find<Node> (nodeName);
+          consumerHelper.SetStrategy ((i%2)*2 + 1);
+          app = consumerHelper.Install (client);
+          app.Start (Seconds (0.0));
+          Simulator::Schedule (Seconds (INTERMISSION), ndn::LinkControlHelper::FailLink,
+                               Names::Find<Node> (nodeName), Names::Find<Node> ("router1"));
+          Simulator::Schedule (Seconds (2*INTERMISSION), ndn::LinkControlHelper::UpLink,
+                               Names::Find<Node> (nodeName), Names::Find<Node> ("router1"));
+        }
+      for (int i = NUMOFCLIENT/2 ; i < NUMOFCLIENT ; i++)
+        {
+          nodeName[ nodeName.size() - 1 ] = '1'+i;
+          Ptr<Node> client = Names::Find<Node> (nodeName);
+          consumerHelper.SetStrategy ((i%2)*2 + 1);
+          app = consumerHelper.Install (client);
+          app.Start (Seconds (INTERMISSION));
+        }
     }
 
   nodeName = "servern";
@@ -129,6 +155,8 @@ main (int argc, char *argv[])
   Simulator::Schedule (Seconds (CONFIG_T4), CONFIG_E4, Names::Find<Node> (CONFIG_N41), Names::Find<Node> (CONFIG_N42));
   Simulator::Schedule (Seconds (CONFIG_T5), CONFIG_E5, Names::Find<Node> (CONFIG_N51), Names::Find<Node> (CONFIG_N52));
   Simulator::Schedule (Seconds (CONFIG_T6), CONFIG_E6, Names::Find<Node> (CONFIG_N61), Names::Find<Node> (CONFIG_N62));
+  Simulator::Schedule (Seconds (CONFIG_T7), CONFIG_E7, Names::Find<Node> (CONFIG_N71), Names::Find<Node> (CONFIG_N72));
+  Simulator::Schedule (Seconds (CONFIG_T8), CONFIG_E8, Names::Find<Node> (CONFIG_N81), Names::Find<Node> (CONFIG_N82));
   Simulator::Stop (Seconds (ENDTIME));
   Simulator::Run ();
   Simulator::Destroy ();
